@@ -1,0 +1,58 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+dependencies:
+  '@effect/schema':
+    specifier: ^0.53.3
+    version: 0.53.3(effect@2.0.0-next.60)(fast-check@3.14.0)
+  effect:
+    specifier: 2.0.0-next.60
+    version: 2.0.0-next.60
+  xstate:
+    specifier: ^5.3.0
+    version: 5.3.0
+
+devDependencies:
+  typescript:
+    specifier: ^5.3.3
+    version: 5.3.3
+
+packages:
+
+  /@effect/schema@0.53.3(effect@2.0.0-next.60)(fast-check@3.14.0):
+    resolution: {integrity: sha512-QycmIqn2E7v0IPzHqSXmdnX7fhgr102z90BAjBUsifJy5MOfC9EdxTJ5DY8Vxiq9gjbLz7QWBQuCyqRDJ6eNAQ==}
+    peerDependencies:
+      effect: 2.0.0-next.60
+      fast-check: ^3.13.2
+    dependencies:
+      effect: 2.0.0-next.60
+      fast-check: 3.14.0
+    dev: false
+
+  /effect@2.0.0-next.60:
+    resolution: {integrity: sha512-23KhlVACgrg5UPFu9i4szybSU4cCU4T/7CX4pe0jV84QBZX0zm96WzwCtg6dqOnmUzBL7hm6S+iiPW2Rab13Uw==}
+    dev: false
+
+  /fast-check@3.14.0:
+    resolution: {integrity: sha512-9Z0zqASzDNjXBox/ileV/fd+4P+V/f3o4shM6QawvcdLFh8yjPG4h5BrHUZ8yzY6amKGDTAmRMyb/JZqe+dCgw==}
+    engines: {node: '>=8.0.0'}
+    dependencies:
+      pure-rand: 6.0.4
+    dev: false
+
+  /pure-rand@6.0.4:
+    resolution: {integrity: sha512-LA0Y9kxMYv47GIPJy6MI84fqTd2HmYZI83W/kM/SkKfDlajnZYfmXFTxkbY+xSBPkLJxltMa9hIkmdc29eguMA==}
+    dev: false
+
+  /typescript@5.3.3:
+    resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+    dev: true
+
+  /xstate@5.3.0:
+    resolution: {integrity: sha512-7Fx5TgxAFA1vhjtYp46U3+6XbCIZNobBJpT3MdeRb4msOioyKP1YJte9R8GMXh7ilFrGuHx72E836/7KYVkK1w==}
+    dev: false
