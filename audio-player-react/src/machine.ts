@@ -1,5 +1,7 @@
+import { Effect, Either, Match } from "effect";
 import { createMachine } from "xstate";
-import type { MachineParams, MachineType } from "./types";
+import { loadAudio } from "./effect";
+import type { MachineParams } from "./types";
 
 interface Input {
   readonly audioRef: HTMLAudioElement;
@@ -10,13 +12,22 @@ interface Context {
   readonly audioRef: HTMLAudioElement;
 }
 
-type Events = MachineType<"play" | "restart" | "end" | "pause" | "loaded">;
+type Events = MachineParams<{
+  play: {};
+  restart: {};
+  end: {};
+  pause: {};
+  loading: {};
+  loaded: {};
+  error: { readonly message: unknown };
+}>;
 
 type Actions = MachineParams<{
   onPlay: {};
   onPause: {};
   onRestart: {};
-  onLoaded: {};
+  onLoad: {};
+  onError: { readonly message: unknown };
 }>;
 
 export const machine = createMachine(
@@ -26,15 +37,37 @@ export const machine = createMachine(
       currentTime: 0,
     }),
     id: "Audio Player",
-    initial: "Loading",
+    initial: "Init",
     states: {
+      Init: {
+        on: {
+          loading: {
+            target: "Loading",
+          },
+        },
+      },
       Loading: {
+        entry: {
+          type: "onLoad",
+        },
         on: {
           loaded: {
             target: "Paused",
-            actions: {
-              type: "onLoaded",
-            },
+          },
+          error: {
+            target: "Error",
+            actions: [
+              ({ event }) =>
+                Match.value(event).pipe(
+                  Match.when({ type: "error" }, ({ params: { message } }) =>
+                    Effect.sync(() =>
+                      console.error(
+                        `Error: ${JSON.stringify(message, null, 2)}`
+                      )
+                    ).pipe(Effect.runPromise)
+                  )
+                ),
+            ],
           },
         },
       },
@@ -53,6 +86,9 @@ export const machine = createMachine(
             },
           },
         },
+      },
+      Error: {
+        type: "final",
       },
       Playing: {
         entry: {
@@ -86,7 +122,21 @@ export const machine = createMachine(
       onPlay: (_) => {},
       onPause: (_) => {},
       onRestart: (_) => {},
-      onLoaded: (_) => {},
+      onLoad: ({ context: { audioRef }, self }) =>
+        loadAudio({ audioRef, context: null, trackSource: null }).pipe(
+          Effect.either,
+          Effect.map(
+            Either.match({
+              onLeft: (error) => {
+                console.log({ error });
+
+                return self.send({ type: "error", params: { message: error } });
+              },
+              onRight: (data) => self.send({ type: "loaded" }),
+            })
+          ),
+          Effect.runPromise
+        ),
     },
     actors: {},
     guards: {},

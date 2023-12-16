@@ -10,6 +10,8 @@ export default function App() {
 
   return (
     <div>
+      <pre>{JSON.stringify(snapshot.value, null, 2)}</pre>
+      <button onClick={() => send({ type: "loading" })}>Click to load</button>
       <audio
         crossOrigin="anonymous"
         ref={audio}
@@ -17,7 +19,7 @@ export default function App() {
         onTimeUpdate={() => {
           // TODO
         }}
-        onLoadedData={() => send({ type: "loaded" })}
+        onLoadedData={(e) => send({ type: "loaded" })}
         onPause={() => send({ type: "pause" })}
         onPlay={() => send({ type: "play" })}
         onEnded={() => send({ type: "end" })}
