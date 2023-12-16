@@ -4,14 +4,10 @@ import { machine } from "./machine";
 
 export default function App() {
   const audio = useRef<HTMLAudioElement>(null);
-  const [snapshot, send] = useMachine(machine, {
-    input: { audioRef: audio.current! }, // TODO: Unsafe bang `!`
-  });
-
+  const [snapshot, send] = useMachine(machine);
   return (
     <div>
       <pre>{JSON.stringify(snapshot.value, null, 2)}</pre>
-      <button onClick={() => send({ type: "loading" })}>Click to load</button>
       <audio
         crossOrigin="anonymous"
         ref={audio}
@@ -19,11 +15,18 @@ export default function App() {
         onTimeUpdate={() => {
           // TODO
         }}
-        onLoadedData={(e) => send({ type: "loaded" })}
+        onLoadedData={(e) =>
+          send({
+            type: "loading",
+            params: { audioRef: e.currentTarget },
+          })
+        }
         onPause={() => send({ type: "pause" })}
-        onPlay={() => send({ type: "play" })}
         onEnded={() => send({ type: "end" })}
-      ></audio>
+      />
+      {snapshot.matches("Paused") && (
+        <button onClick={() => send({ type: "play" })}>Play</button>
+      )}
     </div>
   );
 }

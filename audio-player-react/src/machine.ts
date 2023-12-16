@@ -1,15 +1,11 @@
-import { Effect, Either, Match } from "effect";
-import { createMachine } from "xstate";
+import { Console, Effect, Either, Match } from "effect";
+import { assign, createMachine } from "xstate";
 import { loadAudio } from "./effect";
 import type { MachineParams } from "./types";
 
-interface Input {
-  readonly audioRef: HTMLAudioElement;
-}
-
 interface Context {
   readonly currentTime: number;
-  readonly audioRef: HTMLAudioElement;
+  readonly audioRef: HTMLAudioElement | null;
 }
 
 type Events = MachineParams<{
@@ -17,8 +13,8 @@ type Events = MachineParams<{
   restart: {};
   end: {};
   pause: {};
-  loading: {};
   loaded: {};
+  loading: { readonly audioRef: HTMLAudioElement };
   error: { readonly message: unknown };
 }>;
 
@@ -26,16 +22,16 @@ type Actions = MachineParams<{
   onPlay: {};
   onPause: {};
   onRestart: {};
-  onLoad: {};
+  onLoad: { readonly audioRef: HTMLAudioElement };
   onError: { readonly message: unknown };
 }>;
 
 export const machine = createMachine(
   {
-    context: ({ input: { audioRef } }) => ({
-      audioRef,
+    context: {
+      audioRef: null,
       currentTime: 0,
-    }),
+    },
     id: "Audio Player",
     initial: "Init",
     states: {
@@ -47,27 +43,53 @@ export const machine = createMachine(
         },
       },
       Loading: {
-        entry: {
-          type: "onLoad",
-        },
+        entry: assign(({ event, self }) =>
+          Match.value(event).pipe(
+            Match.when({ type: "loading" }, ({ params: { audioRef } }) =>
+              loadAudio({ audioRef, context: null, trackSource: null }).pipe(
+                Effect.either,
+                Effect.map(
+                  Either.match({
+                    onLeft: (error) =>
+                      self.send({
+                        type: "error",
+                        params: { message: error },
+                      }),
+                    onRight: (_) => self.send({ type: "loaded" }),
+                  })
+                ),
+                Effect.map((): Partial<Context> => ({ audioRef })),
+                Effect.runSync
+              )
+            ),
+            Match.orElse(() =>
+              Effect.sync(() =>
+                self.send({
+                  type: "error",
+                  params: { message: `Wrong entry event: ${event.type}` },
+                })
+              ).pipe(
+                Effect.map((): Partial<Context> => ({})),
+                Effect.runSync
+              )
+            )
+          )
+        ),
         on: {
           loaded: {
             target: "Paused",
           },
           error: {
             target: "Error",
-            actions: [
-              ({ event }) =>
-                Match.value(event).pipe(
-                  Match.when({ type: "error" }, ({ params: { message } }) =>
-                    Effect.sync(() =>
-                      console.error(
-                        `Error: ${JSON.stringify(message, null, 2)}`
-                      )
-                    ).pipe(Effect.runPromise)
-                  )
+            actions: ({ event }) =>
+              Match.value(event).pipe(
+                Match.when({ type: "error" }, ({ params: { message } }) =>
+                  Effect.sync(() =>
+                    console.error(`Error: ${JSON.stringify(message, null, 2)}`)
+                  ).pipe(Effect.runPromise)
                 ),
-            ],
+                Match.exhaustive
+              ),
           },
         },
       },
@@ -111,7 +133,6 @@ export const machine = createMachine(
       },
     },
     types: {
-      input: {} as Input,
       events: {} as Events,
       context: {} as Context,
       actions: {} as Actions,
@@ -119,24 +140,18 @@ export const machine = createMachine(
   },
   {
     actions: {
-      onPlay: (_) => {},
+      onPlay: ({ context: { audioRef } }) =>
+        Effect.gen(function* (_) {
+          if (audioRef === null) {
+            return yield* _(Effect.die("Missing audio ref" as const));
+          }
+
+          yield* _(Console.log("Playing audio"));
+
+          return yield* _(Effect.promise(() => audioRef.play()));
+        }).pipe(Effect.runPromise),
       onPause: (_) => {},
       onRestart: (_) => {},
-      onLoad: ({ context: { audioRef }, self }) =>
-        loadAudio({ audioRef, context: null, trackSource: null }).pipe(
-          Effect.either,
-          Effect.map(
-            Either.match({
-              onLeft: (error) => {
-                console.log({ error });
-
-                return self.send({ type: "error", params: { message: error } });
-              },
-              onRight: (data) => self.send({ type: "loaded" }),
-            })
-          ),
-          Effect.runPromise
-        ),
     },
     actors: {},
     guards: {},
