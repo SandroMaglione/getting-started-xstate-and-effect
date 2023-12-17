@@ -13,31 +13,28 @@ export default function App() {
         crossOrigin="anonymous"
         ref={audio}
         src="https://audio.transistor.fm/m/shows/40155/2658917e74139f25a86a88d346d71324.mp3"
-        onTimeUpdate={() => {
-          // TODO
-        }}
-        onLoadedData={(e) =>
-          send({
-            type: "loading",
-            params: { audioRef: e.currentTarget },
-          })
+        onTimeUpdate={() => send({ type: "time" })}
+        onLoadedData={({ currentTarget: audioRef }) =>
+          send({ type: "loading", params: { audioRef } })
         }
-        onPause={() => send({ type: "pause" })}
         onEnded={() => send({ type: "end" })}
       />
 
+      <p>{`Current time: ${snapshot.context.currentTime}`}</p>
+
       <div>
         {Match.value(snapshot.value).pipe(
-          Match.when("Paused", () => (
+          Match.when({ Active: "Paused" }, () => (
             <button onClick={() => send({ type: "play" })}>Play</button>
           )),
-          Match.when("Playing", () => (
+          Match.when({ Active: "Playing" }, () => (
             <button onClick={() => send({ type: "pause" })}>Pause</button>
           )),
           Match.orElse(() => <></>)
         )}
 
-        {(snapshot.matches("Paused") || snapshot.matches("Playing")) && (
+        {(snapshot.matches({ Active: "Paused" }) ||
+          snapshot.matches({ Active: "Playing" })) && (
           <button onClick={() => send({ type: "restart" })}>Restart</button>
         )}
       </div>

@@ -20,6 +20,7 @@ type Events = MachineParams<{
     readonly audioRef: HTMLAudioElement;
   };
   error: { readonly message: unknown };
+  time: {};
 }>;
 
 type Actions = MachineParams<{
@@ -28,6 +29,7 @@ type Actions = MachineParams<{
   onRestart: {};
   onLoad: { readonly audioRef: HTMLAudioElement };
   onError: { readonly message: unknown };
+  onUpdateTime: {};
 }>;
 
 export const machine = createMachine(
@@ -50,102 +52,118 @@ export const machine = createMachine(
       },
       Loading: {
         entry: assign(({ event, self }) =>
-          Match.value(event).pipe(
-            Match.when({ type: "loading" }, ({ params: { audioRef } }) =>
-              Effect.gen(function* (_) {
-                const audioEither = yield* _(
-                  loadAudio({ audioRef, context: null, trackSource: null }),
-                  Effect.either
-                );
-                if (Either.isLeft(audioEither)) {
-                  yield* _(
-                    Effect.sync(() =>
-                      self.send({
-                        type: "error",
-                        params: { message: audioEither.left },
-                      })
-                    )
+          Match.value(event)
+            .pipe(
+              Match.when({ type: "loading" }, ({ params: { audioRef } }) =>
+                Effect.gen(function* (_) {
+                  const audioEither = yield* _(
+                    loadAudio({ audioRef, context: null, trackSource: null }),
+                    Effect.either
                   );
+                  if (Either.isLeft(audioEither)) {
+                    yield* _(
+                      Effect.sync(() =>
+                        self.send({
+                          type: "error",
+                          params: { message: audioEither.left },
+                        })
+                      )
+                    );
 
-                  return { audioRef } satisfies Partial<Context>;
-                }
+                    return { audioRef } satisfies Partial<Context>;
+                  }
 
-                yield* _(Effect.sync(() => self.send({ type: "loaded" })));
-                return {
-                  audioRef,
-                  audioContext: audioEither.right.audioContext,
-                  trackSource: audioEither.right.trackSource,
-                } satisfies Partial<Context>;
-              }).pipe(Effect.runSync)
-            ),
-            Match.orElse(() =>
-              Effect.sync(() =>
-                self.send({
-                  type: "error",
-                  params: { message: `Wrong entry event: ${event.type}` },
+                  yield* _(Effect.sync(() => self.send({ type: "loaded" })));
+                  return {
+                    audioRef,
+                    audioContext: audioEither.right.audioContext,
+                    trackSource: audioEither.right.trackSource,
+                  } satisfies Partial<Context>;
                 })
-              ).pipe(
-                Effect.map((): Partial<Context> => ({})),
-                Effect.runSync
+              ),
+              Match.orElse(() =>
+                Effect.sync(() =>
+                  self.send({
+                    type: "error",
+                    params: { message: `Wrong entry event: ${event.type}` },
+                  })
+                ).pipe(Effect.map((): Partial<Context> => ({})))
               )
             )
-          )
+            .pipe(Effect.runSync)
         ),
         on: {
           loaded: {
-            target: "Paused",
+            target: "Active",
           },
           error: {
             target: "Error",
             actions: ({ event }) =>
-              Match.value(event).pipe(
-                Match.when({ type: "error" }, ({ params: { message } }) =>
-                  Effect.sync(() =>
-                    console.error(`Error: ${JSON.stringify(message, null, 2)}`)
-                  ).pipe(Effect.runPromise)
-                ),
-                Match.exhaustive
-              ),
+              Match.value(event)
+                .pipe(
+                  Match.when({ type: "error" }, ({ params: { message } }) =>
+                    Effect.sync(() =>
+                      console.error(
+                        `Error: ${JSON.stringify(message, null, 2)}`
+                      )
+                    )
+                  ),
+                  Match.orElse((event) =>
+                    Effect.die(`Invalid event for "onError": ${event}`)
+                  )
+                )
+                .pipe(Effect.runPromise),
           },
         },
       },
-      Paused: {
-        entry: {
-          type: "onPause",
-        },
-        on: {
-          play: {
-            target: "Playing",
+      Active: {
+        initial: "Paused",
+        states: {
+          Paused: {
+            entry: {
+              type: "onPause",
+            },
+            on: {
+              play: {
+                target: "Playing",
+              },
+              restart: {
+                target: "Playing",
+                actions: {
+                  type: "onRestart",
+                },
+              },
+            },
           },
-          restart: {
-            target: "Playing",
-            actions: {
-              type: "onRestart",
+          Playing: {
+            entry: {
+              type: "onPlay",
+            },
+            on: {
+              restart: {
+                target: "Playing",
+                actions: {
+                  type: "onRestart",
+                },
+              },
+              end: {
+                target: "Paused",
+              },
+              pause: {
+                target: "Paused",
+              },
+              time: {
+                target: "Playing",
+                actions: {
+                  type: "onUpdateTime",
+                },
+              },
             },
           },
         },
       },
       Error: {
         type: "final",
-      },
-      Playing: {
-        entry: {
-          type: "onPlay",
-        },
-        on: {
-          restart: {
-            target: "Playing",
-            actions: {
-              type: "onRestart",
-            },
-          },
-          end: {
-            target: "Paused",
-          },
-          pause: {
-            target: "Paused",
-          },
-        },
       },
     },
     types: {
@@ -212,6 +230,13 @@ export const machine = createMachine(
             })
           );
         }).pipe(Effect.runSync),
+      onUpdateTime: assign(({ context }) =>
+        Effect.sync(
+          (): Partial<Context> => ({
+            currentTime: context.audioRef?.currentTime ?? 0,
+          })
+        ).pipe(Effect.runSync)
+      ),
     },
     actors: {},
     guards: {},
