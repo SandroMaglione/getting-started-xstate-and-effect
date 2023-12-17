@@ -1,17 +1,14 @@
 import { useMachine } from "@xstate/react";
 import { Match } from "effect";
-import { useRef } from "react";
 import { machine } from "./machine";
 
 export default function App() {
-  const audio = useRef<HTMLAudioElement>(null);
   const [snapshot, send] = useMachine(machine);
   return (
     <div>
       <pre>{JSON.stringify(snapshot.value, null, 2)}</pre>
       <audio
         crossOrigin="anonymous"
-        ref={audio}
         src="https://audio.transistor.fm/m/shows/40155/2658917e74139f25a86a88d346d71324.mp3"
         onTimeUpdate={() => send({ type: "time" })}
         onLoadedData={({ currentTarget: audioRef }) =>
