@@ -20,3 +20,4 @@ pnpm install xstate @xstate/react effect @effect/schema
   - **Note**: Editor for initial logic, then switching all on code for implementation
 - `snapshot.matches` is untyped!
 - An `assign` action (`entry`) requires a sync operation
+- Possibly fix the issue with `missing audioRef` by working with sub-machines and having a valid ref or error

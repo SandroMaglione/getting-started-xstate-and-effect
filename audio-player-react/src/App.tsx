@@ -1,4 +1,5 @@
 import { useMachine } from "@xstate/react";
+import { Match } from "effect";
 import { useRef } from "react";
 import { machine } from "./machine";
 
@@ -24,8 +25,15 @@ export default function App() {
         onPause={() => send({ type: "pause" })}
         onEnded={() => send({ type: "end" })}
       />
-      {snapshot.matches("Paused") && (
-        <button onClick={() => send({ type: "play" })}>Play</button>
+
+      {Match.value(snapshot.value).pipe(
+        Match.when("Paused", () => (
+          <button onClick={() => send({ type: "play" })}>Play</button>
+        )),
+        Match.when("Playing", () => (
+          <button onClick={() => send({ type: "pause" })}>Pause</button>
+        )),
+        Match.orElse(() => <p>...</p>)
       )}
     </div>
   );
