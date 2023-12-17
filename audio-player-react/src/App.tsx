@@ -11,7 +11,7 @@ export default function App() {
       <audio
         crossOrigin="anonymous"
         ref={audio}
-        src="TODO"
+        src="https://audio.transistor.fm/m/shows/40155/2658917e74139f25a86a88d346d71324.mp3"
         onTimeUpdate={() => {
           // TODO
         }}
