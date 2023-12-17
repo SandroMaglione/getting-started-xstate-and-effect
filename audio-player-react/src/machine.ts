@@ -192,7 +192,26 @@ export const machine = createMachine(
 
           return yield* _(Effect.sync(() => audioRef.pause()));
         }).pipe(Effect.runSync),
-      onRestart: (_) => {},
+      onRestart: ({ context: { audioRef } }) =>
+        Effect.gen(function* (_) {
+          if (audioRef === null) {
+            return yield* _(Effect.die("Missing audio ref" as const));
+          }
+
+          yield* _(
+            Console.log(`Restarting audio from ${audioRef.currentTime}`)
+          );
+
+          return yield* _(
+            Effect.sync(() => {
+              audioRef.currentTime = 0; // Restart
+
+              if (audioRef.paused) {
+                audioRef.play();
+              }
+            })
+          );
+        }).pipe(Effect.runSync),
     },
     actors: {},
     guards: {},

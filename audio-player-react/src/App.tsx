@@ -26,15 +26,21 @@ export default function App() {
         onEnded={() => send({ type: "end" })}
       />
 
-      {Match.value(snapshot.value).pipe(
-        Match.when("Paused", () => (
-          <button onClick={() => send({ type: "play" })}>Play</button>
-        )),
-        Match.when("Playing", () => (
-          <button onClick={() => send({ type: "pause" })}>Pause</button>
-        )),
-        Match.orElse(() => <p>...</p>)
-      )}
+      <div>
+        {Match.value(snapshot.value).pipe(
+          Match.when("Paused", () => (
+            <button onClick={() => send({ type: "play" })}>Play</button>
+          )),
+          Match.when("Playing", () => (
+            <button onClick={() => send({ type: "pause" })}>Pause</button>
+          )),
+          Match.orElse(() => <></>)
+        )}
+
+        {(snapshot.matches("Paused") || snapshot.matches("Playing")) && (
+          <button onClick={() => send({ type: "restart" })}>Restart</button>
+        )}
+      </div>
     </div>
   );
 }
