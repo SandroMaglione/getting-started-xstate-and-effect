@@ -1,25 +1,7 @@
-import { Console, Effect, Either } from "effect";
+import { Console, Effect } from "effect";
 import { assign, setup } from "xstate";
-import { loadAudio } from "./effect";
-import type { MachineParams } from "./types";
-
-interface Context {
-  readonly currentTime: number;
-  readonly audioRef: HTMLAudioElement | null;
-  readonly audioContext: AudioContext | null;
-  readonly trackSource: MediaElementAudioSourceNode | null;
-}
-
-type Events = MachineParams<{
-  play: {};
-  restart: {};
-  end: {};
-  pause: {};
-  loaded: {};
-  loading: { readonly audioRef: HTMLAudioElement };
-  error: { readonly message: unknown };
-  time: { readonly updatedTime: number };
-}>;
+import { onLoad } from "./effect";
+import { Context, Events } from "./machine-types";
 
 export const machine = setup({
   types: {
@@ -86,32 +68,19 @@ export const machine = setup({
         console.error(`Error: ${JSON.stringify(message, null, 2)}`)
       ).pipe(Effect.runPromise),
     onLoad: assign(({ self }, { audioRef }: { audioRef: HTMLAudioElement }) =>
-      Effect.gen(function* (_) {
-        const audioEither = yield* _(
-          loadAudio({ audioRef, context: null, trackSource: null }),
-          Effect.either
-        );
-        if (Either.isLeft(audioEither)) {
-          yield* _(
-            Effect.sync(() =>
-              self.send({
-                type: "error",
-                params: { message: audioEither.left },
-              })
-            )
-          );
-
-          return { audioRef } satisfies Partial<Context>;
-        }
-
-        yield* _(Effect.sync(() => self.send({ type: "loaded" })));
-
-        return {
-          audioRef,
-          audioContext: audioEither.right.audioContext,
-          trackSource: audioEither.right.trackSource,
-        } satisfies Partial<Context>;
-      }).pipe(Effect.runSync)
+      onLoad({ audioRef, context: null, trackSource: null }).pipe(
+        Effect.flatMap(({ context }) =>
+          Effect.sync(() => self.send({ type: "loaded" })).pipe(
+            Effect.map(() => context)
+          )
+        ),
+        Effect.catchTag("OnLoadError", ({ message, context }) =>
+          Effect.sync(() =>
+            self.send({ type: "error", params: { message } })
+          ).pipe(Effect.map(() => context))
+        ),
+        Effect.runSync
+      )
     ),
     onUpdateTime: assign((_, { updatedTime }: { updatedTime: number }) => ({
       currentTime: updatedTime,

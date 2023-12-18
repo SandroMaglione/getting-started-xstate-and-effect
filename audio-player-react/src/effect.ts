@@ -1,14 +1,16 @@
 import { Data, Effect } from "effect";
+import { Context } from "./machine-types";
 
-class AudioContextNotSupported extends Data.TaggedError(
-  "AudioContextNotSupported"
-)<{}> {}
+class OnLoadError extends Data.TaggedError("OnLoadError")<{
+  context: Partial<Context>;
+  message: string;
+}> {}
 
-class LoadingAudioTrackError extends Data.TaggedError(
-  "LoadingAudioTrackError"
-)<{ error: unknown }> {}
+class OnLoadSuccess extends Data.TaggedClass("OnLoadSuccess")<{
+  context: Partial<Context>;
+}> {}
 
-export const loadAudio = ({
+export const onLoad = ({
   audioRef,
   context,
   trackSource,
@@ -16,17 +18,24 @@ export const loadAudio = ({
   audioRef: HTMLAudioElement;
   context: AudioContext | null;
   trackSource: MediaElementAudioSourceNode | null;
-}) =>
+}): Effect.Effect<never, OnLoadError, OnLoadSuccess> =>
   Effect.gen(function* (_) {
     const AudioContext =
       window.AudioContext || (window as any).webkitAudioContext || false;
 
     if (!AudioContext) {
-      return yield* _(Effect.fail(new AudioContextNotSupported()));
+      return yield* _(
+        Effect.fail(
+          new OnLoadError({
+            context: { audioRef },
+            message: "AudioContext not supported",
+          })
+        )
+      );
     }
 
     const audioContext = context ?? new AudioContext();
-    return yield* _(
+    const audioConfig = yield* _(
       Effect.try({
         try: () => {
           const newTrackSource =
@@ -36,7 +45,19 @@ export const loadAudio = ({
 
           return { trackSource: newTrackSource, audioContext } as const;
         },
-        catch: (error) => new LoadingAudioTrackError({ error }),
+        catch: () =>
+          new OnLoadError({
+            context: { audioRef },
+            message: "Error connecting createMediaElementSource",
+          }),
       })
     );
+
+    return new OnLoadSuccess({
+      context: {
+        audioRef,
+        audioContext: audioConfig.audioContext,
+        trackSource: audioConfig.trackSource,
+      },
+    });
   });
