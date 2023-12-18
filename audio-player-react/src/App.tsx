@@ -8,7 +8,8 @@ export default function App() {
       <pre>{JSON.stringify(snapshot.value, null, 2)}</pre>
       <audio
         crossOrigin="anonymous"
-        src="https://audio.transistor.fm/m/shows/40155/2658917e74139f25a86a88d346d71324.mp3"
+        src="https://campfire-mode.freecodecamp.org/donate.mp3" // Use this to test "end" event
+        // src="https://audio.transistor.fm/m/shows/40155/2658917e74139f25a86a88d346d71324.mp3" // Use this to test "play"/"pause" events
         onTimeUpdate={({ currentTarget: audioRef }) =>
           send({ type: "time", params: { updatedTime: audioRef.currentTime } })
         }
