@@ -19,6 +19,7 @@ pnpm install xstate @xstate/react effect @effect/schema
   - Maybe allow to copy only a specific parameter (e.g. **only states**)
   - **Note**: Editor for initial logic, then switching all on code for implementation
 - `snapshot.matches` is untyped! (not always it seems, and the match is not always a `string` but it can also be an object for nested states)
+  - Actually this may be again an issue with `exactOptionalPropertyTypes`
 - An `assign` action (`entry`) requires a sync operation
 - Possibly fix the issue with `missing audioRef` by working with sub-machines and having a valid ref or error (probably not)
 - Issues with `exactOptionalPropertyTypes` in `tsconfig.json` causes `matches` type to become `never` (possibly work on a reproduction)

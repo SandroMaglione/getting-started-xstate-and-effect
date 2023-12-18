@@ -1,5 +1,4 @@
 import { useMachine } from "@xstate/react";
-import { Match } from "effect";
 import { machine } from "./machine";
 
 export default function App() {
@@ -22,18 +21,15 @@ export default function App() {
       <p>{`Current time: ${snapshot.context.currentTime}`}</p>
 
       <div>
-        {Match.value(snapshot.value).pipe(
-          Match.when({ Active: "Paused" }, () => (
-            <button onClick={() => send({ type: "play" })}>Play</button>
-          )),
-          Match.when({ Active: "Playing" }, () => (
-            <button onClick={() => send({ type: "pause" })}>Pause</button>
-          )),
-          Match.orElse(() => <></>)
+        {snapshot.matches({ Active: "Paused" }) && (
+          <button onClick={() => send({ type: "play" })}>Play</button>
         )}
 
-        {(snapshot.matches({ Active: "Paused" }) ||
-          snapshot.matches({ Active: "Playing" })) && (
+        {snapshot.matches({ Active: "Playing" }) && (
+          <button onClick={() => send({ type: "pause" })}>Pause</button>
+        )}
+
+        {snapshot.matches("Active") && (
           <button onClick={() => send({ type: "restart" })}>Restart</button>
         )}
       </div>
