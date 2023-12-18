@@ -1,6 +1,6 @@
-import { Console, Effect } from "effect";
+import { Effect } from "effect";
 import { assign, setup } from "xstate";
-import { onLoad } from "./effect";
+import { onError, onLoad, onPause, onPlay, onRestart } from "./effect";
 import { Context, Events } from "./machine-types";
 
 export const machine = setup({
@@ -10,74 +10,22 @@ export const machine = setup({
   },
   actions: {
     onPlay: ({ context: { audioRef, audioContext } }) =>
-      Effect.gen(function* (_) {
-        if (audioRef === null) {
-          return yield* _(Effect.die("Missing audio ref" as const));
-        } else if (audioContext === null) {
-          return yield* _(Effect.die("Missing audio context" as const));
-        }
-
-        yield* _(Console.log(`Playing audio: ${audioRef.src}`));
-
-        if (audioContext.state === "suspended") {
-          yield* _(Effect.promise(() => audioContext.resume()));
-        }
-
-        return yield* _(
-          Effect.tryPromise({
-            try: () => audioRef.play(),
-            catch: (error) =>
-              `Unable to play audio: ${JSON.stringify(error, null, 2)}`,
-          })
-        );
-      }).pipe(
-        Effect.tapError((error) => Console.log(error)),
-        Effect.catchAll(() => Effect.sync(() => {})),
-        Effect.runPromise
-      ),
+      onPlay({ audioContext, audioRef }).pipe(Effect.runPromise),
     onPause: ({ context: { audioRef } }) =>
-      Effect.gen(function* (_) {
-        if (audioRef === null) {
-          return yield* _(Effect.die("Missing audio ref" as const));
-        }
-
-        yield* _(Console.log(`Pausing audio at ${audioRef.currentTime}`));
-
-        return yield* _(Effect.sync(() => audioRef.pause()));
-      }).pipe(Effect.runSync),
+      onPause({ audioRef }).pipe(Effect.runSync),
     onRestart: ({ context: { audioRef } }) =>
-      Effect.gen(function* (_) {
-        if (audioRef === null) {
-          return yield* _(Effect.die("Missing audio ref" as const));
-        }
-
-        yield* _(Console.log(`Restarting audio from ${audioRef.currentTime}`));
-
-        return yield* _(
-          Effect.sync(() => {
-            audioRef.currentTime = 0; // Restart
-
-            if (audioRef.paused) {
-              audioRef.play();
-            }
-          })
-        );
-      }).pipe(Effect.runSync),
+      onRestart({ audioRef }).pipe(Effect.runPromise),
     onError: (_, { message }: { message: unknown }) =>
-      Effect.sync(() =>
-        console.error(`Error: ${JSON.stringify(message, null, 2)}`)
-      ).pipe(Effect.runPromise),
+      onError({ message }).pipe(Effect.runPromise),
     onLoad: assign(({ self }, { audioRef }: { audioRef: HTMLAudioElement }) =>
       onLoad({ audioRef, context: null, trackSource: null }).pipe(
-        Effect.flatMap(({ context }) =>
-          Effect.sync(() => self.send({ type: "loaded" })).pipe(
-            Effect.map(() => context)
-          )
+        Effect.tap(() => Effect.sync(() => self.send({ type: "loaded" }))),
+        Effect.tapError(({ message }) =>
+          Effect.sync(() => self.send({ type: "error", params: { message } }))
         ),
-        Effect.catchTag("OnLoadError", ({ message, context }) =>
-          Effect.sync(() =>
-            self.send({ type: "error", params: { message } })
-          ).pipe(Effect.map(() => context))
+        Effect.map(({ context }) => context),
+        Effect.catchTag("OnLoadError", ({ context }) =>
+          Effect.succeed(context)
         ),
         Effect.runSync
       )

@@ -1,4 +1,4 @@
-import { Data, Effect } from "effect";
+import { Console, Data, Effect } from "effect";
 import { Context } from "./machine-types";
 
 class OnLoadError extends Data.TaggedError("OnLoadError")<{
@@ -61,3 +61,73 @@ export const onLoad = ({
       },
     });
   });
+
+export const onPlay = ({
+  audioRef,
+  audioContext,
+}: {
+  audioRef: HTMLAudioElement | null;
+  audioContext: AudioContext | null;
+}): Effect.Effect<never, never, void> =>
+  Effect.gen(function* (_) {
+    if (audioRef === null) {
+      return yield* _(Effect.die("Missing audio ref" as const));
+    } else if (audioContext === null) {
+      return yield* _(Effect.die("Missing audio context" as const));
+    }
+
+    yield* _(Console.log(`Playing audio: ${audioRef.src}`));
+
+    if (audioContext.state === "suspended") {
+      yield* _(Effect.promise(() => audioContext.resume()));
+    }
+
+    return yield* _(Effect.promise(() => audioRef.play()));
+  });
+
+export const onPause = ({
+  audioRef,
+}: {
+  audioRef: HTMLAudioElement | null;
+}): Effect.Effect<never, never, void> =>
+  Effect.gen(function* (_) {
+    if (audioRef === null) {
+      return yield* _(Effect.die("Missing audio ref" as const));
+    }
+
+    yield* _(Console.log(`Pausing audio at ${audioRef.currentTime}`));
+
+    return yield* _(Effect.sync(() => audioRef.pause()));
+  });
+
+export const onRestart = ({
+  audioRef,
+}: {
+  audioRef: HTMLAudioElement | null;
+}): Effect.Effect<never, never, void> =>
+  Effect.gen(function* (_) {
+    if (audioRef === null) {
+      return yield* _(Effect.die("Missing audio ref" as const));
+    }
+
+    yield* _(Console.log(`Restarting audio from ${audioRef.currentTime}`));
+
+    return yield* _(
+      Effect.promise(async () => {
+        audioRef.currentTime = 0; // Restart
+
+        if (audioRef.paused) {
+          await audioRef.play();
+        }
+      })
+    );
+  });
+
+export const onError = ({
+  message,
+}: {
+  message: unknown;
+}): Effect.Effect<never, never, void> =>
+  Effect.sync(() =>
+    console.error(`Error: ${JSON.stringify(message, null, 2)}`)
+  );
