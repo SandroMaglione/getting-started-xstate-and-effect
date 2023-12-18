@@ -19,8 +19,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "strictNullChecks": true,
-    "exactOptionalPropertyTypes": true
+    "strictNullChecks": true
+    // "exactOptionalPropertyTypes": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

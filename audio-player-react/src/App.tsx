@@ -10,7 +10,9 @@ export default function App() {
       <audio
         crossOrigin="anonymous"
         src="https://audio.transistor.fm/m/shows/40155/2658917e74139f25a86a88d346d71324.mp3"
-        onTimeUpdate={() => send({ type: "time" })}
+        onTimeUpdate={({ currentTarget: audioRef }) =>
+          send({ type: "time", params: { updatedTime: audioRef.currentTime } })
+        }
         onLoadedData={({ currentTarget: audioRef }) =>
           send({ type: "loading", params: { audioRef } })
         }

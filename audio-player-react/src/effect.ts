@@ -19,7 +19,6 @@ export const loadAudio = ({
 }) =>
   Effect.gen(function* (_) {
     const AudioContext =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       window.AudioContext || (window as any).webkitAudioContext || false;
 
     if (!AudioContext) {
