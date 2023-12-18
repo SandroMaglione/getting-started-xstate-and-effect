@@ -53,6 +53,13 @@ export const machine = setup({
             params: ({ event }) => ({ audioRef: event.params.audioRef }),
           },
         },
+        "init-error": {
+          target: "Error",
+          actions: {
+            type: "onError",
+            params: ({ event }) => ({ message: event.params.message }),
+          },
+        },
       },
     },
     Loading: {

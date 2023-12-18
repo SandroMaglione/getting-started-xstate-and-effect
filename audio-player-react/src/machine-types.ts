@@ -15,5 +15,6 @@ export type Events = MachineParams<{
   loaded: {};
   loading: { readonly audioRef: HTMLAudioElement };
   error: { readonly message: unknown };
+  "init-error": { readonly message: unknown };
   time: { readonly updatedTime: number };
 }>;
