@@ -3,6 +3,7 @@ import { emit, setup, type ActorRefFrom } from "xstate";
 /// 1️⃣ Define "child" machine that handles a specific feature (e.g. upload file)
 export const uploadMachine = setup({
   types: {
+    context: {} as { value: string },
     /// 👇 Define events emitted by the machine
     emitted: {} as { type: "uploaded"; value: number },
     events: {} as { type: "upload"; value: number },
@@ -17,6 +18,7 @@ export const uploadMachine = setup({
 }).createMachine({
   id: "child",
   initial: "Idle",
+  context: { value: "XState 🔥" },
   states: {
     Idle: {
       on: {

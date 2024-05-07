@@ -1,4 +1,4 @@
-import { useMachine } from "@xstate/react";
+import { useMachine, useSelector } from "@xstate/react";
 import { useEffect } from "react";
 import type { ActorRefFrom } from "xstate";
 import { rootMachine, type uploadMachine } from "./machine";
@@ -24,16 +24,21 @@ export default function App() {
 
 /// 👇 Isolated logic for "child" machine, no reference to `root`
 const Child = ({ child }: { child: ActorRefFrom<typeof uploadMachine> }) => {
+  /// 🪄 `useSelector` to extract context from `child` actor
+  const value = useSelector(child, (snapshot) => snapshot.context.value);
   return (
-    <button
-      onClick={() =>
-        child.send({
-          type: "upload",
-          value: Math.random(),
-        })
-      }
-    >
-      Upload
-    </button>
+    <>
+      <p>{`Child value: ${value}`}</p>
+      <button
+        onClick={() =>
+          child.send({
+            type: "upload",
+            value: Math.random(),
+          })
+        }
+      >
+        Upload
+      </button>
+    </>
   );
 };
