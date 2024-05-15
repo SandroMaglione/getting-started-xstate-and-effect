@@ -5,8 +5,6 @@ type SystemIds = (typeof systemIds)[number];
 
 type NotifierEvents = { type: "notify"; value: number };
 
-export type ActorIds = "upload-machine" | "notifier-machine";
-
 /**
  * Receptionist pattern 🪄
  *
@@ -87,6 +85,8 @@ export const uploadMachine = setup({
 export const rootMachine = setup({
   types: {
     context: {} as { child: ActorRefFrom<typeof uploadMachine> },
+    /// 🪄 Typed children (key:id, value:actor)
+    children: {} as { upload: "upload"; notifier: "notifier" },
   },
   actors: {
     upload: uploadMachine,
@@ -96,12 +96,12 @@ export const rootMachine = setup({
   invoke: [
     {
       src: "upload",
-      id: "upload-machine" satisfies ActorIds,
+      id: "upload",
       systemId: "upload" satisfies SystemIds,
     },
     {
       src: "notifier",
-      id: "notifier-machine" satisfies ActorIds,
+      id: "notifier",
       systemId: "notifier" satisfies SystemIds,
     },
   ],

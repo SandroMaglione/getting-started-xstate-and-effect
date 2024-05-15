@@ -3,13 +3,13 @@ import { useEffect } from "react";
 import type { ActorRefFrom } from "xstate";
 import {
   rootMachine,
-  type ActorIds,
   type notifierMachine,
   type uploadMachine,
 } from "./machine";
 
 export default function App() {
   const [snapshot] = useMachine(rootMachine);
+  const notifierActor = snapshot.children["notifier"];
 
   /// 🔥 Root machine can react to events triggered by child machine
   useEffect(() => {
@@ -26,14 +26,7 @@ export default function App() {
 
   return (
     <>
-      <NotifierMachine
-        actor={
-          // 👇 "a little" unsafe using `as` (we know better than Typescript here)
-          snapshot.children[
-            "notifier-machine" satisfies ActorIds
-          ] as ActorRefFrom<typeof notifierMachine>
-        }
-      />
+      {notifierActor && <NotifierMachine actor={notifierActor} />}
       <Child child={snapshot.context.child} />
     </>
   );
