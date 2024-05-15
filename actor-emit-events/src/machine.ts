@@ -1,25 +1,28 @@
-import { emit, sendTo, setup, type ActorRefFrom } from "xstate";
+import { assign, emit, sendTo, setup, type ActorRefFrom } from "xstate";
 
 const systemIds = ["upload", "notifier"] as const;
 type SystemIds = (typeof systemIds)[number];
 
 type NotifierEvents = { type: "notify"; value: number };
 
+export type ActorIds = "upload-machine" | "notifier-machine";
+
 /**
  * Receptionist pattern 🪄
  *
  * https://stately.ai/blog/announcing-xstate-v5-beta#actor-system
  */
-const notifierMachine = setup({
+export const notifierMachine = setup({
   types: {
+    context: {} as { lastValue: number | null },
     events: {} as NotifierEvents,
   },
   actions: {
-    notify: (_, { value }: { value: number }) =>
-      console.log("Received value", value),
+    notify: assign((_, { value }: { value: number }) => ({ lastValue: value })),
   },
 }).createMachine({
   initial: "Idle",
+  context: { lastValue: null },
   states: {
     Idle: {
       on: {
@@ -93,10 +96,12 @@ export const rootMachine = setup({
   invoke: [
     {
       src: "upload",
+      id: "upload-machine" satisfies ActorIds,
       systemId: "upload" satisfies SystemIds,
     },
     {
       src: "notifier",
+      id: "notifier-machine" satisfies ActorIds,
       systemId: "notifier" satisfies SystemIds,
     },
   ],

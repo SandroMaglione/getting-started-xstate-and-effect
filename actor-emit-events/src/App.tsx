@@ -1,7 +1,12 @@
 import { useMachine, useSelector } from "@xstate/react";
 import { useEffect } from "react";
 import type { ActorRefFrom } from "xstate";
-import { rootMachine, type uploadMachine } from "./machine";
+import {
+  rootMachine,
+  type ActorIds,
+  type notifierMachine,
+  type uploadMachine,
+} from "./machine";
 
 export default function App() {
   const [snapshot] = useMachine(rootMachine);
@@ -19,8 +24,34 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  return <Child child={snapshot.context.child} />;
+  return (
+    <>
+      <NotifierMachine
+        actor={
+          // 👇 "a little" unsafe using `as` (we know better than Typescript here)
+          snapshot.children[
+            "notifier-machine" satisfies ActorIds
+          ] as ActorRefFrom<typeof notifierMachine>
+        }
+      />
+      <Child child={snapshot.context.child} />
+    </>
+  );
 }
+
+const NotifierMachine = ({
+  actor,
+}: {
+  actor: ActorRefFrom<typeof notifierMachine>;
+}) => {
+  const context = useSelector(actor, (snapshot) => snapshot.context);
+  return (
+    <div>
+      <p>Notifier machine context</p>
+      <pre>{JSON.stringify(context, null, 2)}</pre>
+    </div>
+  );
+};
 
 /// 👇 Isolated logic for "child" machine, no reference to `root`
 const Child = ({ child }: { child: ActorRefFrom<typeof uploadMachine> }) => {
