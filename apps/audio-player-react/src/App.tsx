@@ -10,7 +10,7 @@ export default function App() {
         crossOrigin="anonymous"
         // src="" // Use this to test "init-error" event
         // src="https://campfire-mode.freecodecamp.org/donate.mp3" // Use this to test "end" event
-        src="https://audio.transistor.fm/m/shows/40155/2658917e74139f25a86a88d346d71324.mp3" // Use this to test "play"/"pause" events
+        src="/Scarred_and_Unstoppable.mp3" // Use this to test "play"/"pause" events
         onTimeUpdate={({ currentTarget: audioRef }) =>
           send({ type: "time", params: { updatedTime: audioRef.currentTime } })
         }

@@ -3,7 +3,7 @@
 Core dependencies:
 
 ```bash
-pnpm install xstate @xstate/react effect @effect/schema
+pnpm install xstate @xstate/react effect
 ```
 
 `tsconfig.json` additions:

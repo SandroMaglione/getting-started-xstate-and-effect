@@ -18,12 +18,13 @@ This project is part of my weekly newsletter at [**sandromaglione.com**](https:/
 </a>
 
 ## Project structure
-The project contains 2 folders:
-- [`first-example`](./first-example/): My initial exploration with all the features of XState and state machines. I was specifically interested in working with types to try making the machine as type-safe as possible
-- [`audio-player-react`](./audio-player-react/): This is the implementation of the weekly project. It contains a Vite app that uses **XState and Effect to implement and audio player** (`<audio>`)
-  - [`machine.ts`](./audio-player-react/src/machine.ts): XState machine
-  - [`effect.ts`](/audio-player-react/src/effect.ts): actions of the machine implemented using Effect
-  - [`App.tsx`](/audio-player-react/src/App.tsx): react component that uses the state machine to render the audio player and send events
+The project contains 3 workspace apps:
+- [`first-example`](./apps/first-example/): My initial exploration with all the features of XState and state machines. I was specifically interested in working with types to try making the machine as type-safe as possible
+- [`audio-player-react`](./apps/audio-player-react/): This is the implementation of the weekly project. It contains a Vite app that uses **XState and Effect to implement an audio player** (`<audio>`)
+  - [`machine.ts`](./apps/audio-player-react/src/machine.ts): XState machine
+  - [`effect.ts`](./apps/audio-player-react/src/effect.ts): actions of the machine implemented using Effect
+  - [`App.tsx`](./apps/audio-player-react/src/App.tsx): react component that uses the state machine to render the audio player and send events
+- [`actor-emit-events`](./apps/actor-emit-events/): Vite app example for emitting events from actors.
 
 
 **Read all the details of the audio player implementation and how to use XState and Effect in the full article** 👇

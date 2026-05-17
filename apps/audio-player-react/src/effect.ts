@@ -1,5 +1,5 @@
 import { Console, Data, Effect } from "effect";
-import { Context } from "./machine-types";
+import type { Context } from "./machine-types";
 
 class OnLoadError extends Data.TaggedError("OnLoadError")<{
   context: Partial<Context>;
@@ -18,13 +18,13 @@ export const onLoad = ({
   audioRef: HTMLAudioElement;
   context: AudioContext | null;
   trackSource: MediaElementAudioSourceNode | null;
-}): Effect.Effect<never, OnLoadError, OnLoadSuccess> =>
-  Effect.gen(function* (_) {
+}): Effect.Effect<OnLoadSuccess, OnLoadError> =>
+  Effect.gen(function* () {
     const AudioContext =
       window.AudioContext || (window as any).webkitAudioContext || false;
 
     if (!AudioContext) {
-      return yield* _(
+      return yield* (
         Effect.fail(
           new OnLoadError({
             context: { audioRef },
@@ -35,7 +35,7 @@ export const onLoad = ({
     }
 
     const audioContext = context ?? new AudioContext();
-    const audioConfig = yield* _(
+    const audioConfig = yield* (
       Effect.try({
         try: () => {
           const newTrackSource =
@@ -68,51 +68,51 @@ export const onPlay = ({
 }: {
   audioRef: HTMLAudioElement | null;
   audioContext: AudioContext | null;
-}): Effect.Effect<never, never, void> =>
-  Effect.gen(function* (_) {
+}): Effect.Effect<void> =>
+  Effect.gen(function* () {
     if (audioRef === null) {
-      return yield* _(Effect.die("Missing audio ref" as const));
+      return yield* Effect.die("Missing audio ref" as const);
     } else if (audioContext === null) {
-      return yield* _(Effect.die("Missing audio context" as const));
+      return yield* Effect.die("Missing audio context" as const);
     }
 
-    yield* _(Console.log(`Playing audio: ${audioRef.src}`));
+    yield* Console.log(`Playing audio: ${audioRef.src}`);
 
     if (audioContext.state === "suspended") {
-      yield* _(Effect.promise(() => audioContext.resume()));
+      yield* Effect.promise(() => audioContext.resume());
     }
 
-    return yield* _(Effect.promise(() => audioRef.play()));
+    return yield* Effect.promise(() => audioRef.play());
   });
 
 export const onPause = ({
   audioRef,
 }: {
   audioRef: HTMLAudioElement | null;
-}): Effect.Effect<never, never, void> =>
-  Effect.gen(function* (_) {
+}): Effect.Effect<void> =>
+  Effect.gen(function* () {
     if (audioRef === null) {
-      return yield* _(Effect.die("Missing audio ref" as const));
+      return yield* Effect.die("Missing audio ref" as const);
     }
 
-    yield* _(Console.log(`Pausing audio at ${audioRef.currentTime}`));
+    yield* Console.log(`Pausing audio at ${audioRef.currentTime}`);
 
-    return yield* _(Effect.sync(() => audioRef.pause()));
+    return yield* Effect.sync(() => audioRef.pause());
   });
 
 export const onRestart = ({
   audioRef,
 }: {
   audioRef: HTMLAudioElement | null;
-}): Effect.Effect<never, never, void> =>
-  Effect.gen(function* (_) {
+}): Effect.Effect<void> =>
+  Effect.gen(function* () {
     if (audioRef === null) {
-      return yield* _(Effect.die("Missing audio ref" as const));
+      return yield* Effect.die("Missing audio ref" as const);
     }
 
-    yield* _(Console.log(`Restarting audio from ${audioRef.currentTime}`));
+    yield* Console.log(`Restarting audio from ${audioRef.currentTime}`);
 
-    return yield* _(
+    return yield* (
       Effect.promise(async () => {
         audioRef.currentTime = 0; // Restart
 
@@ -127,7 +127,7 @@ export const onError = ({
   message,
 }: {
   message: unknown;
-}): Effect.Effect<never, never, void> =>
+}): Effect.Effect<void> =>
   Effect.sync(() =>
     console.error(`Error: ${JSON.stringify(message, null, 2)}`)
   );

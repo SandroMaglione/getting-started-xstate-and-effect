@@ -1,0 +1,15 @@
+{
+  "name": "getting-started-xstate-and-effect",
+  "private": true,
+  "scripts": {
+    "typecheck": "pnpm --parallel --recursive run typecheck"
+  },
+  "dependencies": {
+    "@xstate/react": "6.1.0",
+    "effect": "4.0.0-beta.66",
+    "xstate": "5.31.1"
+  },
+  "devDependencies": {
+    "@typescript/native-preview": "7.0.0-dev.20260516.1"
+  }
+}

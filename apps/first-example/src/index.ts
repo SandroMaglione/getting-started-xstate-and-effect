@@ -1,4 +1,4 @@
-import * as Schema from "@effect/schema/Schema";
+import * as Schema from "effect/Schema";
 import { assign, createActor, createMachine } from "xstate";
 
 /** https://youtu.be/vGVvJuazs84?si=4gava-TbvTQijw83&t=1428 */
@@ -16,12 +16,12 @@ type MachineParams<A extends Record<string, Record<string, any>>> =
     : never;
 
 /** State machine `context` */
-const Context = Schema.struct({
-  answer1: Schema.string,
-  answer2: Schema.union(Schema.literal("Yes"), Schema.literal("No")),
-  answer3: Schema.boolean,
+const Context = Schema.Struct({
+  answer1: Schema.String,
+  answer2: Schema.Literals(["Yes", "No"]),
+  answer3: Schema.Boolean,
 });
-interface Context extends Schema.Schema.To<typeof Context> {}
+interface Context extends Schema.Schema.Type<typeof Context> {}
 
 /** Initial default context */
 const context = (input: Partial<Context>): Context => ({
@@ -95,4 +95,6 @@ const toggleMachine = createMachine(
   }
 );
 
-const actor = createActor(toggleMachine);
+const actor = createActor(toggleMachine, {
+  input: { answer3: false },
+});
