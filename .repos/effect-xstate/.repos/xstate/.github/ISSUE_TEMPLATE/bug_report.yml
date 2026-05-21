@@ -1,0 +1,67 @@
+name: Bug Report
+description: File a bug report
+title: 'Bug: '
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report an issue with XState or XState tooling within this repo.
+  - type: dropdown
+    id: version
+    attributes:
+      label: XState version
+      description: Which version of the core XState library are you using?
+      options:
+        - XState version 5
+        - XState version 4
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Please provide a clear and concise description of what the bug is.
+      placeholder: Something is broken!
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What did you expect to happen?
+      placeholder: I expected this to work.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: What was the actual observed result?
+      placeholder: This did not work.
+    validations:
+      required: true
+  - type: input
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: |
+        Please provide a reproducible example. You can use [Stately Studio](https://stately.ai/editor) or one of the following templates:
+
+        - [XState Template (CodeSandbox)](https://codesandbox.io/p/devbox/github/statelyai/xstate/tree/main/templates/vanilla-ts)
+        - [XState Template (StackBlitz)](https://stackblitz.com/github/statelyai/xstate/tree/main/templates/vanilla-ts)
+        - [XState React Template (CodeSandbox)](https://codesandbox.io/p/devbox/github/statelyai/xstate/tree/main/templates/react-ts)
+        - [XState React Template (StackBlitz)](https://stackblitz.com/github/statelyai/xstate/tree/main/templates/react-ts)
+        - [XState Vue Template (CodeSandbox)](https://codesandbox.io/p/devbox/github/statelyai/xstate/tree/main/templates/vue-ts)
+        - [XState Vue Template (StackBlitz)](https://stackblitz.com/github/statelyai/xstate/tree/main/templates/vue-ts)
+        - [XState Svelte Template (CodeSandbox)](https://codesandbox.io/p/devbox/github/statelyai/xstate/tree/main/templates/svelte-ts)
+        - [XState Svelte Template (StackBlitz)](https://stackblitz.com/github/statelyai/xstate/tree/main/templates/svelte-ts)
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here (e.g. specific XState version)
+    validations:
+      required: false
