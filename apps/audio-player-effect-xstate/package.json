@@ -1,0 +1,28 @@
+{
+  "name": "audio-player-effect-xstate",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "pnpm typecheck && vite build",
+    "typecheck": "tsgo --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@effect/atom-react": "4.0.0-beta.64",
+    "@typeonce/effect-xstate": "0.1.0",
+    "effect": "4.0.0-beta.64",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "scheduler": "^0.27.0",
+    "xstate": "5.31.1"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@types/scheduler": "^0.26.0",
+    "@vitejs/plugin-react": "6.0.2",
+    "vite": "8.0.13"
+  }
+}
