@@ -1,0 +1,81 @@
+{
+  "name": "@typeonce/effect-xstate",
+  "version": "0.1.0",
+  "author": "Sandro Maglione",
+  "type": "module",
+  "license": "MIT",
+  "description": "XState actor integrations for Effect Atom.",
+  "homepage": "https://github.com/typeonce-dev/effect-xstate#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/typeonce-dev/effect-xstate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/typeonce-dev/effect-xstate/issues"
+  },
+  "keywords": [
+    "effect",
+    "xstate",
+    "atom",
+    "state-management",
+    "typescript"
+  ],
+  "sideEffects": [],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/main.ts",
+    "./runtime-context": null,
+    "./*": "./src/*.ts"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/main.js",
+      "./runtime-context": null,
+      "./*": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json && pnpm babel",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "check": "pnpm typecheck",
+    "check:release": "pnpm typecheck && pnpm test-types && pnpm test && pnpm build && npm_config_cache=.npm pnpm publish --dry-run --access public --no-git-checks",
+    "release": "pnpm check:release && npm_config_cache=.npm pnpm publish --access public --provenance",
+    "typecheck": "tsc --noEmit",
+    "test-types": "tstyche",
+    "test": "vitest",
+    "coverage": "vitest --coverage",
+    "lint:all": "NODE_OPTIONS='--experimental-strip-types' oxlint --deny-warnings",
+    "lint:fix": "NODE_OPTIONS='--experimental-strip-types' oxlint --fix",
+    "lint": "NODE_OPTIONS='--experimental-strip-types' oxlint --quiet"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.28.6",
+    "@babel/core": "^7.29.0",
+    "@effect/atom-react": "4.0.0-beta.64",
+    "@effect/vitest": "4.0.0-beta.64",
+    "@types/node": "^25.7.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.2",
+    "jsdom": "^29.1.1",
+    "babel-plugin-annotate-pure-calls": "^0.5.0",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "tstyche": "^7.1.0",
+    "typescript": "^6.0.2",
+    "vitest": "4.1.4"
+  },
+  "peerDependencies": {
+    "effect": "4.0.0-beta.64",
+    "xstate": "^5.19.2"
+  }
+}

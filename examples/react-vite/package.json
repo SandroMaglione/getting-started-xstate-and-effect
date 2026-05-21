@@ -1,0 +1,27 @@
+{
+  "name": "actor-atom-react-vite-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@effect/atom-react": "4.0.0-beta.64",
+    "effect": "4.0.0-beta.64",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "scheduler": "^0.27.0",
+    "xstate": "^5.19.2"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.2",
+    "@types/scheduler": "^0.26.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "5.9.2",
+    "vite": "^5.4.1"
+  }
+}

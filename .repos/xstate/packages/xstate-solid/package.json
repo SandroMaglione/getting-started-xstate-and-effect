@@ -1,0 +1,59 @@
+{
+  "name": "@xstate/solid",
+  "version": "2.0.0",
+  "description": "XState tools for SolidJS",
+  "keywords": [
+    "state",
+    "machine",
+    "statechart",
+    "scxml",
+    "state",
+    "graph",
+    "solidjs",
+    "store"
+  ],
+  "author": "David Khourshid <davidkpiano@gmail.com>",
+  "homepage": "https://github.com/statelyai/xstate/tree/main/packages/xstate-solid#readme",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "dist/xstate-solid.cjs.js",
+  "module": "dist/xstate-solid.esm.js",
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./dist/xstate-solid.cjs.mjs",
+        "default": "./dist/xstate-solid.cjs.js"
+      },
+      "module": "./dist/xstate-solid.esm.js",
+      "import": "./dist/xstate-solid.cjs.mjs",
+      "default": "./dist/xstate-solid.cjs.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/statelyai/xstate.git"
+  },
+  "scripts": {},
+  "bugs": {
+    "url": "https://github.com/statelyai/xstate/issues"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.6.0",
+    "xstate": "workspace:^"
+  },
+  "peerDependenciesMeta": {
+    "xstate": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@solidjs/testing-library": "^0.8.10",
+    "solid-js": "^1.9.7",
+    "vite-plugin-solid": "^2.11.6",
+    "xstate": "workspace:^"
+  }
+}

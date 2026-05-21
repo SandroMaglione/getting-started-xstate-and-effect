@@ -1,0 +1,40 @@
+# eslint
+.eslintcache
+
+# Coverage directory used by tools like istanbul
+coverage
+.nyc_output
+
+# Dependency directory
+# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
+node_modules
+
+# Other
+.DS_Store
+dist/
+lib/
+es/
+editor/
+_examples/
+__examples/
+*.tsbuildinfo
+
+# JetBrains IDE's
+.idea
+.fleet
+
+# Documentation
+docs-src/
+netlify/
+docs/.cache
+!docs/examples/
+*.pdf
+
+./public/
+.cache
+
+# Docs
+api/
+
+# pnpm
+.pnpm-lock.yaml

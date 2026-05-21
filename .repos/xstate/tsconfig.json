@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "isolatedModules": true,
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "jsx": "react-jsx",
+    "lib": ["es2024", "dom"],
+    "strict": true,
+    "stripInternal": true,
+    "types": ["vitest/globals"]
+  },
+  "exclude": ["**/examples", "**/templates"]
+}
